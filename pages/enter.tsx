@@ -1,9 +1,10 @@
 import type { NextPage } from "next";
 import { useState } from "react";
-import { useForm } from "react-hook-form";
-import Button from "../components/button";
-import Input from "../components/input";
-import { cls } from "../libs/utils";
+import { FieldErrors, useForm } from "react-hook-form";
+import Button from "@components/button";
+import Input from "@components/input";
+import useMutation from "@libs/client/useMutation";
+import { cls } from "@libs/client/utils";
 
 interface EnterForm {
   email?: string;
@@ -13,6 +14,8 @@ interface EnterForm {
 const Enter: NextPage = () => {
   const { register, handleSubmit, reset } = useForm<EnterForm>();
   const [method, setMethod] = useState<"email" | "phone">("email");
+  const [enter, { loading, data, error }] = useMutation("/api/users/enter");
+
   const onEmailClick = () => {
     reset();
     setMethod("email");
@@ -22,8 +25,12 @@ const Enter: NextPage = () => {
     setMethod("phone");
   };
 
-  const onValid = (data: EnterForm) => {
-    console.log(data);
+  const onValid = (validateForm: EnterForm) => {
+    enter(validateForm);
+  };
+
+  const inValid = (errors: FieldErrors) => {
+    console.log(errors);
   };
 
   return (
@@ -58,12 +65,14 @@ const Enter: NextPage = () => {
           </div>
         </div>
         <form
-          onSubmit={handleSubmit(onValid)}
+          onSubmit={handleSubmit(onValid, inValid)}
           className="flex flex-col mt-8 space-y-4"
         >
           {method === "email" ? (
             <Input
-              register={register("email")}
+              register={register("email", {
+                required: "Email is required!",
+              })}
               name="email"
               label="Email address"
               type="email"
