@@ -1,7 +1,10 @@
+import mail from "@sendgrid/mail";
 import client from "@libs/server/client";
 import withHandler, { ResponseType } from "@libs/server/withHandler";
 import { NextApiRequest, NextApiResponse } from "next";
 import twilio from "twilio";
+
+mail.setApiKey(process.env.EMAIL_API_KEY!);
 
 const twilioClient = twilio(process.env.TWILIO_SID, process.env.TWILIO_TOKEN);
 
@@ -10,7 +13,7 @@ async function handler(
   res: NextApiResponse<ResponseType>
 ) {
   const { phone, email } = req.body;
-  const user = phone ? { phone: +phone } : email ? { email } : null;
+  const user = phone ? { phone: phone } : email ? { email } : null;
   const payload = Math.floor(100000 + Math.random() * 900000) + "";
 
   if (!user) {
@@ -36,13 +39,19 @@ async function handler(
   });
 
   if (phone) {
-    const message = await twilioClient.messages.create({
-      messagingServiceSid: process.env.TWILIO_MSID,
-      to: process.env.PHONE_NUMBER!, // 실제로는 입력받은 phone넘버 입력, 뒤에 ! 이 표시는 반드시 있다는 의미
-      body: `Your login token is ${payload}`,
-    });
-
-    console.log(message);
+    // const message = await twilioClient.messages.create({
+    //   messagingServiceSid: process.env.TWILIO_MSID,
+    //   to: process.env.PHONE_NUMBER!, // 실제로는 입력받은 phone넘버 입력, 뒤에 ! 이 표시는 반드시 있다는 의미
+    //   body: `Your login token is ${payload}`,
+    // });
+  } else if (email) {
+    // const email = await mail.send({
+    //   from: "eniows@naver.com",
+    //   to: "eniows@naver.com", // 실제로는 입력받은 email로 보내서 인증하도록 한다.
+    //   subject: "Your Carrot Market Verification Email",
+    //   text: `Your token is ${payload}`,
+    //   html: `<strong>Your token is ${payload}</strong>`,
+    // });
   }
 
   return res.json({
@@ -50,4 +59,4 @@ async function handler(
   });
 }
 
-export default withHandler("POST", handler);
+export default withHandler({ method: "POST", handler, isPrivate: false });
