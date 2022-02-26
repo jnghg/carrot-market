@@ -8,6 +8,7 @@ mail.setApiKey(process.env.EMAIL_API_KEY!);
 
 const twilioClient = twilio(process.env.TWILIO_SID, process.env.TWILIO_TOKEN);
 
+// 토큰정보 생성. SMS 또는 Email
 async function handler(
   req: NextApiRequest,
   res: NextApiResponse<ResponseType>
@@ -53,7 +54,7 @@ async function handler(
     //   html: `<strong>Your token is ${payload}</strong>`,
     // });
   }
-
+  console.log("login token : ", payload);
   return res.json({
     ok: true,
   });
