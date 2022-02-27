@@ -8,31 +8,77 @@ async function handler(
   req: NextApiRequest,
   res: NextApiResponse<ResponseType>
 ) {
-  const {
-    body: { question },
-    session: { user },
-  } = req;
+  if (req.method === "POST") {
+    const {
+      body: { question, longitude, latitude },
+      session: { user },
+    } = req;
 
-  const post = await client.post.create({
-    data: {
-      question,
-      user: {
-        connect: {
-          id: user?.id,
+    const post = await client.post.create({
+      data: {
+        question,
+        longitude,
+        latitude,
+        user: {
+          connect: {
+            id: user?.id,
+          },
         },
       },
-    },
-  });
+    });
+    res.json({
+      ok: true,
+      post,
+    });
+  }
+  if (req.method === "GET") {
+    const {
+      query: { latitude, longitude },
+    } = req;
 
-  res.json({
-    ok: true,
-    post,
-  });
+    const parsedLatitude = parseFloat(latitude.toString());
+    const parsedLongitude = parseFloat(longitude.toString());
+
+    const location = {
+      latitude: {
+        gte: parsedLatitude - 0.01,
+        lte: parsedLatitude + 0.01,
+      },
+      longitude: {
+        gte: parsedLongitude - 0.01,
+        lte: parsedLongitude + 0.01,
+      },
+    };
+
+    const posts = await client.post.findMany({
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            avatar: true,
+          },
+        },
+        _count: {
+          select: {
+            wondering: true,
+            answers: true,
+          },
+        },
+      },
+      where: parsedLatitude && parsedLongitude ? location : {},
+    });
+
+    res.json({
+      ok: true,
+      posts,
+    });
+  }
 }
 
 export default withApiSession(
   withHandler({
-    methods: ["POST"],
+    methods: ["GET", "POST"],
     handler,
   })
 );
