@@ -43,7 +43,6 @@ async function handler(
       },
     },
   });
-  console.log(relatedProducts);
 
   // 좋아요 결과
   const isLiked = Boolean(

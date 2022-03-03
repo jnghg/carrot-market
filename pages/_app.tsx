@@ -2,6 +2,7 @@ import "../styles/globals.css";
 import type { AppProps } from "next/app";
 
 import { SWRConfig } from "swr"; // fetcher 함수를 모든 화면에서 사용할 수 있도록 설정
+import useUser from "@libs/client/useUser";
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (

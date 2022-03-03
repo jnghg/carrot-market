@@ -3,38 +3,22 @@ import withHandler, { ResponseType } from "@libs/server/withHandler";
 import client from "@libs/server/client";
 import { withApiSession } from "@libs/server/withSession";
 
+// session정보 확인
 async function handler(
   req: NextApiRequest,
   res: NextApiResponse<ResponseType>
 ) {
-  if (req.method === "GET") {
-    const products = await client.product.findMany({
-      include: {
-        // _count : relation 되어있는 product 좋아요 개수를 구하기 위함.
-        _count: {
-          select: {
-            favs: true,
-          },
-        },
-      },
-    });
-    res.json({
-      ok: true,
-      products,
-    });
-  }
-  if (req.method === "POST") {
-    const {
-      body: { name, price, description, photoId },
-      session: { user },
-    } = req;
+  const {
+    session: { user },
+    body: { name, price, description },
+  } = req;
 
-    const product = await client.product.create({
+  if (req.method === "POST") {
+    const stream = await client.stream.create({
       data: {
         name,
-        price: +price,
+        price,
         description,
-        image: photoId,
         user: {
           connect: {
             id: user?.id,
@@ -42,11 +26,20 @@ async function handler(
         },
       },
     });
-
     res.json({
       ok: true,
-      product,
+      stream,
     });
+  }
+
+  if (req.method === "GET") {
+    const streams = await client.stream.findMany({
+      // 페이징처리
+      take: 10, // 보여줄 페이지 수 1페이지 : page - 1
+      skip: 0, // 건너뛸 페이지. 페이지 * 보여줄페이지 수
+    });
+
+    res.json({ ok: true, streams });
   }
 }
 
