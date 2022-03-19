@@ -7,7 +7,7 @@ import Link from "next/link";
 import { Product, User } from "@prisma/client";
 import useMutation from "@libs/client/useMutation";
 import { cls } from "@libs/client/utils";
-
+import Image from "next/image";
 interface ProductWithUser extends Product {
   user: User;
 }
@@ -26,7 +26,7 @@ const ItemDetail: NextPage = () => {
     router.query.id ? `/api/products/${router.query.id}` : null
   );
 
-  const { mutate } = useSWRConfig();
+  // const { mutate } = useSWRConfig();
   const [toggleFav] = useMutation(`/api/products/${router.query.id}/fav`);
   const onFavClick = () => {
     toggleFav({});
@@ -42,17 +42,26 @@ const ItemDetail: NextPage = () => {
     }
   };
   return (
-    <Layout canGoBack>
+    <Layout canGoBack seoTitle="Product Page">
       <div className="px-4  py-4">
         <div className="mb-8">
-          <img
-            src={`https://imagedelivery.net/2Xzwd4MaDtydknqMbs7IPQ/${data?.product?.image}/public`}
-            className="h-96 bg-slate-300"
-          />
+          <div className="relative pb-96">
+            <Image
+              src={`https://imagedelivery.net/2Xzwd4MaDtydknqMbs7IPQ/${data?.product?.image}/public`}
+              className="h-96 bg-slate-300 object-cover"
+              layout="fill"
+            />
+            <div className="absolute w-full text-center text-blue-500">
+              Hello
+              <h1>background</h1>
+            </div>
+          </div>
           <div className="flex cursor-pointer py-3 border-t border-b items-center space-x-3">
-            <img
+            <Image
               src={`https://imagedelivery.net/2Xzwd4MaDtydknqMbs7IPQ/${data?.product.user.avatar}/avatar`}
               className="w-12 h-12 rounded-full bg-slate-300"
+              width={48}
+              height={48}
             />
             <div>
               <p className="text-sm font-medium text-gray-700">

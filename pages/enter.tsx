@@ -1,5 +1,5 @@
 import type { NextPage } from "next";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { FieldErrors, useForm } from "react-hook-form";
 import Button from "@components/button";
 import Input from "@components/input";
@@ -7,6 +7,9 @@ import useMutation from "@libs/client/useMutation";
 import { cls } from "@libs/client/utils";
 import { useRouter } from "next/router";
 
+// dynamic import 사용할 때에만 브라우저에 download 함.
+// import dynamic from "next/dynamic";
+// const Bs = dynamic(() => import("/경로"), { ssr : false, suspense: true });  // ssr: 서버사이드 실행여부
 interface EnterForm {
   email?: string;
   phone?: string;
